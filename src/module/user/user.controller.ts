@@ -9,7 +9,7 @@ export class UserController {
 
   @Post()
   create(@Body() createUserDto: RegisterUserDto) {
-    return this.userService.create(createUserDto);
+    return this.userService.register(createUserDto);
   }
 
   @Get()

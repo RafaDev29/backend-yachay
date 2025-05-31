@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
 
-   constructor(
+  constructor(
     @InjectRepository(User)
     private userRepo: Repository<User>,
-  ) {}
+  ) { }
 
 
   create(createUserDto: RegisterUserDto) {
@@ -35,20 +35,19 @@ export class UserService {
   }
 
 
-    async register(dto: RegisterUserDto) {
-    const existing = await this.userRepo.findOne({ where: { email: dto.email } });
+  async register(createUserDto: RegisterUserDto) {
+    const existing = await this.userRepo.findOne({ where: { email: createUserDto.email } });
     if (existing) throw new ConflictException('El correo ya está en uso');
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepo.create({
-      name: dto.name,
-      email: dto.email,
+      name: createUserDto.name,
+      email: createUserDto.email,
       password: hashedPassword,
     });
 
-    await this.userRepo.save(user);
+    return await this.userRepo.save(user);
 
-    return { message: 'Usuario registrado con éxito' };
   }
 }
