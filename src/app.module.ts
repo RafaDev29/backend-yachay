@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './module/auth/auth.module';
 import { UserModule } from './module/user/user.module';
+import { AcademicModule } from './module/academic/academic.module';
+import { CareersModule } from './module/careers/careers.module';
 
 
 @Module({
@@ -11,7 +13,9 @@ import { UserModule } from './module/user/user.module';
     ConfigModule.forRoot({ isGlobal: true}),
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule,
-    UserModule
+    UserModule,
+    AcademicModule,
+    CareersModule
   ],
   controllers: [],
   providers: [],
