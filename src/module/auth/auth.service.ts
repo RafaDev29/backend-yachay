@@ -6,19 +6,23 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserProfile } from '../user/entities/user-profile';
+import { UserAvatar } from '../user/entities/user-avatar.entity';
 
 @Injectable()
 export class AuthService {
- 
-constructor(
+
+  constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
-     @InjectRepository(UserProfile)
-    private readonly profileRepo : Repository<UserProfile>
-  ) {}
+    @InjectRepository(UserProfile)
+    private readonly profileRepo: Repository<UserProfile>,
+     @InjectRepository(UserAvatar)
+    private readonly avatarRepo : Repository<UserAvatar>
 
-async login(dto: LoginUserDto) {
+  ) { }
+
+  async login(dto: LoginUserDto) {
   const user = await this.userRepo.findOne({
     where: { email: dto.email },
   });
@@ -32,29 +36,36 @@ async login(dto: LoginUserDto) {
     throw new UnauthorizedException('Credenciales inválidas');
   }
 
-
   let profile: UserProfile | null = null;
-
   if (user.isConfigured) {
     profile = await this.profileRepo.findOne({
       where: { user: { id: user.id } },
     });
   }
 
+  let avatarUrl: string | null = null;
+  if (user.hasAvatar) {
+    const avatar = await this.avatarRepo.findOne({
+      where: { user: { id: user.id } },
+    });
+    avatarUrl = avatar?.imageUrl || null;
+  }
+
   const payload = { sub: user.id, email: user.email };
   const token = await this.jwtService.signAsync(payload);
 
   return {
-   
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        isConfigured: user.isConfigured,
-        profile: profile || null,
-      },
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isConfigured: user.isConfigured,
+      avatar: avatarUrl,
+      profile: profile || null,
+    },
   };
 }
- 
+
+
 }

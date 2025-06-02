@@ -9,18 +9,24 @@ import { UserProfile } from './entities/user-profile';
 import { InitUserDto } from './dto/init-user.dto';
 import { Academic } from '../academic/entities/academic.entity';
 import { Career } from '../careers/entities/career.entity';
+import { UserAvatar } from './entities/user-avatar.entity';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { s3Client } from 'src/config/s3.config';
+
 @Injectable()
 export class UserService {
 
   constructor(
     @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    private  userRepo: Repository<User>,
     @InjectRepository(UserProfile)
-    private readonly profileRepo: Repository<UserProfile>,
+    private  profileRepo: Repository<UserProfile>,
     @InjectRepository(Academic)
-    private readonly academicLevelRepo : Repository<Academic>,
+    private  academicLevelRepo: Repository<Academic>,
     @InjectRepository(Career)
-    private readonly careerRepo : Repository<Career>
+    private  careerRepo: Repository<Career>,
+    @InjectRepository(UserAvatar)
+    private  avatarRepo: Repository<UserAvatar>
   ) { }
 
 
@@ -62,44 +68,92 @@ export class UserService {
   }
 
   async initUser(userId: string, dto: InitUserDto) {
-  const user = await this.userRepo.findOne({ where: { id: userId } });
-  if (!user) throw new NotFoundException('User not found');
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
 
-  if (user.isConfigured) {
-    throw new BadRequestException('User profile is already configured');
-  }
+    if (user.isConfigured) {
+      throw new BadRequestException('User profile is already configured');
+    }
 
-  const academic = await this.academicLevelRepo.findOne({
-    where: { id: dto.academicLevelId },
-  });
-
-  if (!academic) {
-    throw new NotFoundException('Academic level not found');
-  }
-
-  let career: Career | null = null;
-  if (dto.careerId) {
-    career = await this.careerRepo.findOne({
-      where: { id: dto.careerId },
+    const academic = await this.academicLevelRepo.findOne({
+      where: { id: dto.academicLevelId },
     });
 
-    if (!career) {
-      throw new NotFoundException('Career not found');
+    if (!academic) {
+      throw new NotFoundException('Academic level not found');
     }
+
+    let career: Career | null = null;
+    if (dto.careerId) {
+      career = await this.careerRepo.findOne({
+        where: { id: dto.careerId },
+      });
+
+      if (!career) {
+        throw new NotFoundException('Career not found');
+      }
+    }
+
+    const profile = this.profileRepo.create({
+      user,
+      ...dto,
+    });
+
+    await this.profileRepo.save(profile);
+
+    user.isConfigured = true;
+    await this.userRepo.save(user);
+
+    return { message: 'User profile initialized successfully' };
   }
 
-  const profile = this.profileRepo.create({
-    user,
-    ...dto,
-  });
+ async uploadAvatar(userId: string, file: any) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
 
-  await this.profileRepo.save(profile);
+    const avatarUrl = file.location;
 
-  user.isConfigured = true;
-  await this.userRepo.save(user);
+    let avatar = await this.avatarRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    });
 
-  return { message: 'User profile initialized successfully' };
-}
+    if (avatar) {
+      const previousFileName = this.extractFileName(avatar.imageUrl);
+      if (previousFileName) {
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: 'avatar',
+          Key: previousFileName,
+        });
+        await s3Client.send(deleteCommand);
+      }
+      avatar.imageUrl = avatarUrl;
+    } else {
+      avatar = this.avatarRepo.create({
+        user,
+        imageUrl: avatarUrl,
+      });
+    }
+
+    await this.avatarRepo.save(avatar);
+
+    user.hasAvatar = true;
+    await this.userRepo.save(user);
+
+    return {
+   
+        imageUrl: avatarUrl,
+     
+    };
+  }
+
+
+  private extractFileName(url: string): string {
+    return url.split('/').pop() || '';
+  }
+
+
+
 
 
 }

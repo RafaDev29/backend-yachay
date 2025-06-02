@@ -16,4 +16,7 @@ export class User {
 
   @Column({ default: false })
   isConfigured: boolean;
+
+  @Column({ default: false })
+  hasAvatar: boolean;
 }

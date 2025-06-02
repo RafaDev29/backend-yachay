@@ -7,11 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConfig } from './jwt/jwt.config';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { UserProfile } from '../user/entities/user-profile';
+import { UserAvatar } from '../user/entities/user-avatar.entity';
 
 
 @Module({
   imports : [
-    TypeOrmModule.forFeature([User , UserProfile]),
+    TypeOrmModule.forFeature([User , UserProfile , UserAvatar]),
     JwtModule.register(jwtConfig)
   ],
   controllers: [AuthController],
