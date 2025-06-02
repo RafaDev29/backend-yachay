@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { InitUserDto } from './dto/init-user.dto';
 
 
 
@@ -13,6 +15,12 @@ export class UserController {
   @Post()
   create(@Body() createUserDto: RegisterUserDto) {
     return this.userService.register(createUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('config')
+  async initUser(@Request() req, @Body() dto: InitUserDto) {
+    return this.userService.initUser(req.user.userId, dto);
   }
 
   @Get()
