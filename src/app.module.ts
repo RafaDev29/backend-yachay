@@ -8,6 +8,7 @@ import { AcademicModule } from './module/academic/academic.module';
 import { CareersModule } from './module/careers/careers.module';
 import { UploadModule } from './module/upload/upload.module';
 import { PreferencesModule } from './module/preferences/preferences.module';
+import { CategoryModule } from './module/category/category.module';
 
 
 @Module({
@@ -19,7 +20,8 @@ import { PreferencesModule } from './module/preferences/preferences.module';
     AcademicModule,
     CareersModule,
     UploadModule,
-    PreferencesModule
+    PreferencesModule,
+    CategoryModule
   ],
   controllers: [],
   providers: [],
