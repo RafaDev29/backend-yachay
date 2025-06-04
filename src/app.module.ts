@@ -6,6 +6,8 @@ import { AuthModule } from './module/auth/auth.module';
 import { UserModule } from './module/user/user.module';
 import { AcademicModule } from './module/academic/academic.module';
 import { CareersModule } from './module/careers/careers.module';
+import { UploadModule } from './module/upload/upload.module';
+import { PreferencesModule } from './module/preferences/preferences.module';
 
 
 @Module({
@@ -15,7 +17,9 @@ import { CareersModule } from './module/careers/careers.module';
     AuthModule,
     UserModule,
     AcademicModule,
-    CareersModule
+    CareersModule,
+    UploadModule,
+    PreferencesModule
   ],
   controllers: [],
   providers: [],

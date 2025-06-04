@@ -12,6 +12,7 @@ import { Career } from '../careers/entities/career.entity';
 import { UserAvatar } from './entities/user-avatar.entity';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from 'src/config/s3.config';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class UserService {
@@ -26,7 +27,8 @@ export class UserService {
     @InjectRepository(Career)
     private  careerRepo: Repository<Career>,
     @InjectRepository(UserAvatar)
-    private  avatarRepo: Repository<UserAvatar>
+    private  avatarRepo: Repository<UserAvatar>,
+    private readonly uploadService: UploadService,
   ) { }
 
 
@@ -107,11 +109,11 @@ export class UserService {
     return { message: 'User profile initialized successfully' };
   }
 
- async uploadAvatar(userId: string, file: any) {
+ async uploadAvatar(userId: string, file: Express.Multer.File) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
-    const avatarUrl = file.location;
+    const imageUrl = await this.uploadService.uploadFile(file, 'avatar', userId);
 
     let avatar = await this.avatarRepo.findOne({
       where: { user: { id: userId } },
@@ -119,20 +121,11 @@ export class UserService {
     });
 
     if (avatar) {
-      const previousFileName = this.extractFileName(avatar.imageUrl);
-      if (previousFileName) {
-        const deleteCommand = new DeleteObjectCommand({
-          Bucket: 'avatar',
-          Key: previousFileName,
-        });
-        await s3Client.send(deleteCommand);
-      }
-      avatar.imageUrl = avatarUrl;
+      const previousKey = this.extractFileName(avatar.imageUrl);
+      await s3Client.send(new DeleteObjectCommand({ Bucket: 'avatar', Key: previousKey }));
+      avatar.imageUrl = imageUrl;
     } else {
-      avatar = this.avatarRepo.create({
-        user,
-        imageUrl: avatarUrl,
-      });
+      avatar = this.avatarRepo.create({ user, imageUrl });
     }
 
     await this.avatarRepo.save(avatar);
@@ -140,16 +133,11 @@ export class UserService {
     user.hasAvatar = true;
     await this.userRepo.save(user);
 
-    return {
-   
-        imageUrl: avatarUrl,
-     
-    };
+    return { imageUrl };
   }
 
-
   private extractFileName(url: string): string {
-    return url.split('/').pop() || '';
+    return url.split('/').slice(-2).join('/');
   }
 
 

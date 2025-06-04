@@ -31,18 +31,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Put('avatar')
   @UseInterceptors(FileInterceptor('image', {
-    storage: multerS3({
-      s3: s3Client,
-      bucket: 'avatar',
-      acl: 'public-read',
-      key: (req, file, cb) => {
-        const uniqueName = `user-${req.user.userId}-${Date.now()}-${file.originalname}`;
-        cb(null, uniqueName);
-      },
-    }),
+    storage: multer.memoryStorage(),
   }))
-  
-  async uploadAvatar(
+  uploadAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Req() req: any,
   ) {
