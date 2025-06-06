@@ -8,14 +8,16 @@ import { jwtConfig } from './jwt/jwt.config';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { UserProfile } from '../user/entities/user-profile';
 import { UserAvatar } from '../user/entities/user-avatar.entity';
+import { FirebaseService } from './firebase.service';
 
 
 @Module({
-  imports : [
-    TypeOrmModule.forFeature([User , UserProfile , UserAvatar]),
+  imports: [
+    TypeOrmModule.forFeature([User, UserProfile, UserAvatar]),
     JwtModule.register(jwtConfig)
   ],
   controllers: [AuthController],
-  providers: [AuthService , JwtStrategy],
+  providers: [AuthService, JwtStrategy, FirebaseService],
+  exports: [FirebaseService]
 })
-export class AuthModule {}
+export class AuthModule { }

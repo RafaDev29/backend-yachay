@@ -11,14 +11,14 @@ export class AcademicService {
   constructor(
     @InjectRepository(Academic)
     private readonly repo: Repository<Academic>,
-  ) {}
+  ) { }
 
   async create(createAcademicDto: CreateAcademicDto) {
     const level = this.repo.create(createAcademicDto)
     return await this.repo.save(level)
   }
 
-   async findAll() {
+  async findAll() {
     return await this.repo.find();
   }
 
@@ -26,9 +26,7 @@ export class AcademicService {
     return `This action returns a #${id} academic`;
   }
 
- 
-
-   async update(id: string, updateAcademicDto: CreateAcademicDto) {
+  async update(id: string, updateAcademicDto: CreateAcademicDto) {
     const level = await this.repo.findOne({ where: { id } });
     if (!level) throw new NotFoundException('Nivel académico no encontrado');
 
@@ -36,7 +34,7 @@ export class AcademicService {
     return await this.repo.save(level);
   }
 
-   async delete(id: string) {
+  async delete(id: string) {
     const result = await this.repo.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException('Nivel académico no encontrado');

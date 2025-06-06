@@ -60,7 +60,6 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepo.create({
-      name: createUserDto.name,
       email: createUserDto.email,
       password: hashedPassword,
     });
