@@ -24,7 +24,7 @@ export class UserProfile {
     lastName: string;
 
     @Column()
-    middleName: string;
+    secondLastName: string;
 
     @Column()
     gender: string;

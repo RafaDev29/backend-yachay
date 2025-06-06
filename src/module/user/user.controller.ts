@@ -5,10 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InitUserDto } from './dto/init-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { S3Client } from '@aws-sdk/client-s3';
-import * as multerS3 from 'multer-s3';
 import * as multer from 'multer';
-import { s3Client } from 'src/config/s3.config';
 
 
 @Controller('user')
@@ -26,7 +23,6 @@ export class UserController {
   async initUser(@Request() req, @Body() dto: InitUserDto) {
     return this.userService.initUser(req.user.userId, dto);
   }
-
 
   @UseGuards(JwtAuthGuard)
   @Put('avatar')

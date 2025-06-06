@@ -9,7 +9,7 @@ export class InitUserDto {
   firstName: string;
 
   @IsNotEmpty()
-  middleName: string;
+  secondLastName: string;
 
   @IsIn(['male', 'female', 'other'])
   gender: string;

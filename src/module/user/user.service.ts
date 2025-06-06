@@ -138,9 +138,4 @@ export class UserService {
   private extractFileName(url: string): string {
     return url.split('/').slice(-2).join('/');
   }
-
-
-
-
-
 }
