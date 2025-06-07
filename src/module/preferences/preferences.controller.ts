@@ -5,11 +5,11 @@ import { UpdatePreferenceDto } from './dto/update-preference.dto';
 
 @Controller('preferences')
 export class PreferencesController {
-  constructor(private readonly preferencesService: PreferencesService) {}
+  constructor(private readonly preferencesService: PreferencesService) { }
 
   @Post('add')
-  create(@Body() createPreferenceDto: CreatePreferenceDto) {
-    return this.preferencesService.create(createPreferenceDto);
+  create(@Body() createPreferencesDto: CreatePreferenceDto[]) {
+    return this.preferencesService.createBulk(createPreferencesDto);
   }
 
   @Get('all')

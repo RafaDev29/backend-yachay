@@ -33,4 +33,10 @@ export class UserProfile {
 
     @Column({ nullable: true })
     careerId?: string;
+
+    @Column('uuid', { array: true, default: [] })
+    likedPreferences: string[];
+
+    @Column('uuid', { array: true, default: [] })
+    wantsToLearnPreferences: string[];
 }

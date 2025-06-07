@@ -1,6 +1,10 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreatePreferenceDto {
-  @IsNotEmpty()
+  @IsString()
   name: string;
+
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
 }

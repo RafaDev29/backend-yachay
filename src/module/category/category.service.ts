@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,14 +10,50 @@ export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
-  ) { }
-  create(createCategoryDto: CreateCategoryDto) {
-    const category = this.categoryRepo.create(createCategoryDto);
-    return this.categoryRepo.save(category);
+  ) {}
+
+  async createBulk(createCategoriesDto: CreateCategoryDto[]) {
+    try {
+      const existingNames = createCategoriesDto.map(dto => dto.name);
+      const existing = await this.categoryRepo.find({
+        where: existingNames.map(name => ({ name })),
+      });
+      
+      if (existing.length > 0) {
+        const duplicateNames = existing.map(c => c.name);
+        throw new ConflictException(
+          `Las siguientes categorías ya existen: ${duplicateNames.join(', ')}`
+        );
+      }
+      
+      const categories = this.categoryRepo.create(createCategoriesDto);
+      const savedCategories = await this.categoryRepo.save(categories);
+      
+      return {
+        success: true,
+        count: savedCategories.length,
+        data: savedCategories,
+        message: `${savedCategories.length} categorías creadas exitosamente`,
+      };
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw new Error(`Error al crear categorías: ${error.message}`);
+    }
   }
 
   findAll() {
     return this.categoryRepo.find();
+  }
+
+  async findOneWithPreferences(id: string) {
+    const category = await this.categoryRepo.findOne({
+      where: { id },
+      relations: ['preferences']
+    });
+    if (!category) throw new NotFoundException('Category not found');
+    return category;
   }
 
   async findOne(id: string) {
@@ -27,13 +63,21 @@ export class CategoryService {
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
-    const pref = await this.findOne(id);
-    Object.assign(pref, updateCategoryDto);
-    return this.categoryRepo.save(pref);
+    const category = await this.findOne(id);
+    Object.assign(category, updateCategoryDto);
+    return this.categoryRepo.save(category);
   }
 
-    async remove(id: string) {
+  async remove(id: string) {
     const category = await this.findOne(id);
+    
+    const categoryWithPrefs = await this.findOneWithPreferences(id);
+    if (categoryWithPrefs.preferences && categoryWithPrefs.preferences.length > 0) {
+      throw new ConflictException(
+        `No se puede eliminar la categoría porque tiene ${categoryWithPrefs.preferences.length} preferencias asociadas`
+      );
+    }
+    
     return this.categoryRepo.remove(category);
   }
 }
