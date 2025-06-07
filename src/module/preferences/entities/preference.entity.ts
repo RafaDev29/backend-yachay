@@ -1,5 +1,3 @@
-
-
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
@@ -9,7 +7,4 @@ export class Preference {
 
   @Column()
   name: string;
-
-  @Column({ nullable: true })
-  description?: string;
 }

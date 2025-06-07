@@ -1,4 +1,3 @@
-
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -22,9 +21,6 @@ export class UserProfile {
 
     @Column()
     lastName: string;
-
-    @Column()
-    secondLastName: string;
 
     @Column()
     gender: string;

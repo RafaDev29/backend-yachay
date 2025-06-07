@@ -18,7 +18,7 @@ export class PreferencesService {
     return this.preferenceRepo.save(pref);
   }
 
-   findAll() {
+  findAll() {
     return this.preferenceRepo.find();
   }
 

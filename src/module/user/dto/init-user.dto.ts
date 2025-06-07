@@ -3,13 +3,10 @@ import { IsNotEmpty, IsOptional, IsUUID, IsDateString, IsIn } from 'class-valida
 
 export class InitUserDto {
   @IsNotEmpty()
-  lastName: string;
-
-  @IsNotEmpty()
   firstName: string;
 
   @IsNotEmpty()
-  secondLastName: string;
+  lastName: string;
 
   @IsIn(['male', 'female', 'other'])
   gender: string;
