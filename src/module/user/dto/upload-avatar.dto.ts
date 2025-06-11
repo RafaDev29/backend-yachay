@@ -1,7 +1,7 @@
+import { IsOptional, IsUUID } from 'class-validator';
 
-import { IsNotEmpty } from 'class-validator';
-
-export class UploadAvatarDto {
-  @IsNotEmpty()
-  image: any;
+export class SetAvatarDto {
+  @IsOptional()
+  @IsUUID()
+  characterId?: string;
 }

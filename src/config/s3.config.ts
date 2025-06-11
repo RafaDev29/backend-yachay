@@ -12,4 +12,4 @@ export const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-export const s3Bucket = process.env.S3_BUCKET_NAME!;
+

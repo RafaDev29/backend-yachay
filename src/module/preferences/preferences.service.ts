@@ -83,11 +83,10 @@ export class PreferencesService {
 
   findAll() {
     return this.preferenceRepo.find({
-      relations: ['category'] // Incluir información de la categoría
+      relations: ['category'] 
     });
   }
 
-  // Obtener preferencias por categoría
   async findByCategory(categoryId: string) {
     return this.preferenceRepo.find({
       where: { categoryId },

@@ -9,6 +9,7 @@ import { CareersModule } from './module/careers/careers.module';
 import { UploadModule } from './module/upload/upload.module';
 import { PreferencesModule } from './module/preferences/preferences.module';
 import { CategoryModule } from './module/category/category.module';
+import { CharactersModule } from './module/characters/characters.module';
 
 
 @Module({
@@ -21,7 +22,8 @@ import { CategoryModule } from './module/category/category.module';
     CareersModule,
     UploadModule,
     PreferencesModule,
-    CategoryModule
+    CategoryModule,
+    CharactersModule
   ],
   controllers: [],
   providers: [],

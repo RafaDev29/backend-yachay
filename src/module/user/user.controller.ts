@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InitUserDto } from './dto/init-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
+import { SetAvatarDto } from './dto/upload-avatar.dto';
 
 
 @Controller('user')
@@ -25,16 +26,17 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put('avatar')
-  @UseInterceptors(FileInterceptor('image', {
-    storage: multer.memoryStorage(),
-  }))
-  uploadAvatar(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() req: any,
-  ) {
-    return this.userService.uploadAvatar(req.user.userId, file);
-  }
+@Put('avatar')
+@UseInterceptors(FileInterceptor('image', {
+  storage: multer.memoryStorage(),
+}))
+uploadAvatar(
+  @UploadedFile() file: Express.Multer.File,
+  @Body() dto: SetAvatarDto, // ← Esto permite leer `characterId` desde form-data
+  @Req() req: any,
+) {
+  return this.userService.uploadAvatar(req.user.userId, file, dto.characterId);
+}
 
   @Get()
   findAll() {
