@@ -10,7 +10,7 @@ export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
-  ) {}
+  ) { }
 
   async createBulk(createCategoriesDto: CreateCategoryDto[]) {
     try {
@@ -18,22 +18,20 @@ export class CategoryService {
       const existing = await this.categoryRepo.find({
         where: existingNames.map(name => ({ name })),
       });
-      
+
       if (existing.length > 0) {
         const duplicateNames = existing.map(c => c.name);
         throw new ConflictException(
           `Las siguientes categorías ya existen: ${duplicateNames.join(', ')}`
         );
       }
-      
+
       const categories = this.categoryRepo.create(createCategoriesDto);
       const savedCategories = await this.categoryRepo.save(categories);
-      
+
       return {
-        success: true,
         count: savedCategories.length,
         data: savedCategories,
-        message: `${savedCategories.length} categorías creadas exitosamente`,
       };
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -44,7 +42,9 @@ export class CategoryService {
   }
 
   findAll() {
-    return this.categoryRepo.find();
+    return this.categoryRepo.find({
+      relations: ['preferences'],
+    });
   }
 
   async findOneWithPreferences(id: string) {
@@ -52,13 +52,13 @@ export class CategoryService {
       where: { id },
       relations: ['preferences']
     });
-    if (!category) throw new NotFoundException('Category not found');
+    if (!category) throw new NotFoundException('Categoria no encontrada');
     return category;
   }
 
   async findOne(id: string) {
-    const category = await this.categoryRepo.findOne({ where: { id } });
-    if (!category) throw new NotFoundException('Category not found');
+    const category = await this.categoryRepo.findOne({ where: { id }, relations: ['categories'] });
+    if (!category) throw new NotFoundException('Categoria no encontrada');
     return category;
   }
 
@@ -70,14 +70,14 @@ export class CategoryService {
 
   async remove(id: string) {
     const category = await this.findOne(id);
-    
+
     const categoryWithPrefs = await this.findOneWithPreferences(id);
     if (categoryWithPrefs.preferences && categoryWithPrefs.preferences.length > 0) {
       throw new ConflictException(
         `No se puede eliminar la categoría porque tiene ${categoryWithPrefs.preferences.length} preferencias asociadas`
       );
     }
-    
+
     return this.categoryRepo.remove(category);
   }
 }

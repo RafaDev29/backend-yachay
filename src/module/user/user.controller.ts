@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { InitUserDto } from './dto/init-user.dto';
+import { ProfileSettingsDto } from './dto/profile-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
 
@@ -19,9 +19,15 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('config')
-  async initUser(@Request() req, @Body() dto: InitUserDto) {
-    return this.userService.initUser(req.user.userId, dto);
+  @Put('profile-settings')
+  async updateProfileSettings(@Request() req, @Body() dto: ProfileSettingsDto) {
+    return this.userService.updateProfileSettings(req.user.userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile-settings')
+  async findProfileSettings(@Request() req) {
+    return this.userService.findProfileSettings(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

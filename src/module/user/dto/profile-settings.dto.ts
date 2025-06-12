@@ -1,7 +1,7 @@
 
 import { IsNotEmpty, IsOptional, IsUUID, IsDateString, IsIn, IsArray } from 'class-validator';
 
-export class InitUserDto {
+export class ProfileSettingsDto {
   @IsNotEmpty()
   firstName: string;
 
@@ -22,10 +22,6 @@ export class InitUserDto {
   careerId?: string;
 
   @IsArray()
-  @IsUUID('4', { each: true })
-  likedPreferences: string[];
-
-  @IsArray()
-  @IsUUID('4', { each: true })
-  wantsToLearnPreferences: string[];
+  @IsUUID('all', { each: true })
+  preferenceIds?: string[];
 }

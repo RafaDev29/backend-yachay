@@ -1,15 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException } from '@nestjs/common';
 import { CareersService } from './careers.service';
 import { CreateCareerDto } from './dto/create-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
+import { CreateManyCareersDto } from './dto/create-many-careers.dto';
 
 @Controller('careers')
 export class CareersController {
-  constructor(private readonly careersService: CareersService) {}
+  constructor(private readonly careersService: CareersService) { }
+
+  @Post('add-many')
+  createBulk(@Body() createManyCareersDto: CreateManyCareersDto) {
+    return this.careersService.bulkCreate(createManyCareersDto);
+  }
 
   @Post('add')
   create(@Body() createCareerDto: CreateCareerDto) {
     return this.careersService.create(createCareerDto);
+  }
+
+  @Get('all-by-academic')
+  findByAcademic(@Query('academicId') academicId: string) {
+    if (!academicId) {
+      throw new BadRequestException('academicId es requerido');
+    }
+    return this.careersService.findByAcademic(academicId);
   }
 
   @Get('all')
@@ -19,7 +33,7 @@ export class CareersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.careersService.findOne(+id);
+    return this.careersService.findOne(id);
   }
 
   @Patch('update/:id')

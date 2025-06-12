@@ -1,5 +1,6 @@
 import { Category } from 'src/module/category/entities/category.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { UserProfile } from 'src/module/user/entities/user-profile';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Index } from 'typeorm';
 
 @Entity()
 export class Preference {
@@ -7,12 +8,23 @@ export class Preference {
   id: string;
 
   @Column()
+  @Index({ unique: true })
   name: string;
 
-  @Column({ name: 'category_id', default: "09097b5f-b598-4c90-9305-6cc69971f5aa" })
-  categoryId: string;
+  @Column({ default: true })
+  isActive: boolean;
 
-  @ManyToOne(() => Category, category => category.preferences)
-  @JoinColumn({ name: 'category_id' })
-  category?: Category;
+  @Column({ default: 0 })
+  popularity: number;
+
+  @ManyToMany(() => Category, category => category.preferences)
+  @JoinTable({
+    name: 'preference_categories',
+    joinColumn: { name: 'preference_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+  })
+  categories: Category[];
+
+  @ManyToMany(() => UserProfile, user => user.preferences)
+  usersProfile: UserProfile[];
 }

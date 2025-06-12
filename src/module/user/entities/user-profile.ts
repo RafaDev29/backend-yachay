@@ -4,8 +4,11 @@ import {
     Column,
     OneToOne,
     JoinColumn,
+    ManyToMany,
+    JoinTable,
 } from 'typeorm';
 import { User } from './user.entity';
+import { Preference } from 'src/module/preferences/entities/preference.entity';
 
 @Entity('user_profiles')
 export class UserProfile {
@@ -34,9 +37,12 @@ export class UserProfile {
     @Column({ nullable: true })
     careerId?: string;
 
-    @Column('uuid', { array: true, default: [] })
-    likedPreferences: string[];
-
-    @Column('uuid', { array: true, default: [] })
-    wantsToLearnPreferences: string[];
+    // Relación Many-to-Many con intereses/preferencias
+    @ManyToMany(() => Preference, preference => preference.usersProfile)
+    @JoinTable({
+        name: 'user_preferences',
+        joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'preference_id', referencedColumnName: 'id' }
+    })
+    preferences: Preference[];
 }

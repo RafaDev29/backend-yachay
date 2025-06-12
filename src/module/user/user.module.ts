@@ -8,10 +8,11 @@ import { Career } from '../careers/entities/career.entity';
 import { Academic } from '../academic/entities/academic.entity';
 import { UserAvatar } from './entities/user-avatar.entity';
 import { UploadModule } from '../upload/upload.module';
+import { Preference } from '../preferences/entities/preference.entity';
 
 @Module({
   imports : [
-    TypeOrmModule.forFeature([User , UserProfile , Career , Academic , UserAvatar]), UploadModule
+    TypeOrmModule.forFeature([User , UserProfile , Career , Academic , UserAvatar, Preference]), UploadModule
   ], 
   controllers: [UserController],
   providers: [UserService],

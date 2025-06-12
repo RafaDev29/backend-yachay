@@ -1,5 +1,5 @@
-
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Academic } from 'src/module/academic/entities/academic.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
 @Entity('careers')
 export class Career {
@@ -8,4 +8,10 @@ export class Career {
 
   @Column()
   name: string;
+
+  @ManyToOne(() => Academic, academic => academic.careers, { onDelete: 'CASCADE' })
+  academic: Academic;
+
+  @Column()
+  academicId: string; // FK explícita si deseas consultarla fácilmente
 }

@@ -1,5 +1,5 @@
 import { Preference } from 'src/module/preferences/entities/preference.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, Index } from 'typeorm';
 
 @Entity()
 export class Category {
@@ -7,11 +7,12 @@ export class Category {
   id: string;
 
   @Column()
+  @Index({ unique: true })
   name: string;
 
   @Column({ nullable: true })
   description?: string;
 
-  @OneToMany(() => Preference, preference => preference.category)
+  @ManyToMany(() => Preference, preference => preference.categories)
   preferences: Preference[];
 }

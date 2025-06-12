@@ -6,28 +6,31 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UserProfile } from './entities/user-profile';
-import { InitUserDto } from './dto/init-user.dto';
+import { ProfileSettingsDto } from './dto/profile-settings.dto';
 import { Academic } from '../academic/entities/academic.entity';
 import { Career } from '../careers/entities/career.entity';
 import { UserAvatar } from './entities/user-avatar.entity';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from 'src/config/s3.config';
 import { UploadService } from '../upload/upload.service';
+import { Preference } from '../preferences/entities/preference.entity';
 
 @Injectable()
 export class UserService {
 
   constructor(
     @InjectRepository(User)
-    private  userRepo: Repository<User>,
+    private userRepo: Repository<User>,
     @InjectRepository(UserProfile)
-    private  profileRepo: Repository<UserProfile>,
+    private profileRepo: Repository<UserProfile>,
+    @InjectRepository(Preference)
+    private preferenceRepo: Repository<Preference>,
     @InjectRepository(Academic)
-    private  academicLevelRepo: Repository<Academic>,
+    private academicLevelRepo: Repository<Academic>,
     @InjectRepository(Career)
-    private  careerRepo: Repository<Career>,
+    private careerRepo: Repository<Career>,
     @InjectRepository(UserAvatar)
-    private  avatarRepo: Repository<UserAvatar>,
+    private avatarRepo: Repository<UserAvatar>,
     private readonly uploadService: UploadService,
   ) { }
 
@@ -68,20 +71,26 @@ export class UserService {
 
   }
 
-  async initUser(userId: string, dto: InitUserDto) {
+  async findProfileSettings(userId: string) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    let userProfile = await this.profileRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['preferences']
+    });
+    return userProfile;
+  }
 
-    if (user.isConfigured) {
-      throw new BadRequestException('User profile is already configured');
-    }
+  async updateProfileSettings(userId: string, dto: ProfileSettingsDto) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
 
     const academic = await this.academicLevelRepo.findOne({
       where: { id: dto.academicLevelId },
     });
 
     if (!academic) {
-      throw new NotFoundException('Academic level not found');
+      throw new NotFoundException('Nivel academico no encontrado');
     }
 
     let career: Career | null = null;
@@ -91,24 +100,53 @@ export class UserService {
       });
 
       if (!career) {
-        throw new NotFoundException('Career not found');
+        throw new NotFoundException('Carrera no encontrada');
       }
     }
 
-    const profile = this.profileRepo.create({
-      user,
-      ...dto,
+    let userProfile = await this.profileRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['preferences']
     });
 
-    await this.profileRepo.save(profile);
+    // Si no existe el perfil, crear uno nuevo
+    if (!userProfile) {
+      userProfile = new UserProfile();
+      userProfile.user = user;
+    }
+
+    // Actualizar los campos del perfil (tanto para crear como para editar)
+    userProfile.firstName = dto.firstName;
+    userProfile.lastName = dto.lastName;
+    userProfile.gender = dto.gender;
+    userProfile.birthDate = dto.birthDate;
+    userProfile.academicLevelId = dto.academicLevelId;
+    userProfile.careerId = dto.careerId;
+
+    // Manejar las preferencias
+    if (dto.preferenceIds?.length) {
+      const preferences = await this.preferenceRepo.findByIds(dto.preferenceIds);
+      if (preferences.length !== dto.preferenceIds.length) {
+        throw new NotFoundException('Una o más preferencias no fueron encontradas');
+      }
+      userProfile.preferences = preferences;
+    } else {
+      userProfile.preferences = [];
+    }
+
+    await this.profileRepo.save(userProfile);
 
     user.isConfigured = true;
     await this.userRepo.save(user);
 
-    return { message: 'User profile initialized successfully' };
+    return {
+      message: userProfile.id ?
+        'El perfil del usuario ha sido actualizado correctamente' :
+        'El usuario ha configurado su perfil correctamente'
+    };
   }
 
- async uploadAvatar(userId: string, file: Express.Multer.File) {
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 

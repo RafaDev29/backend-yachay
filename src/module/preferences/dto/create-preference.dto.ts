@@ -1,10 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsUUID, IsArray } from "class-validator";
 
 export class CreatePreferenceDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsOptional()
-  @IsUUID()
-  categoryId?: string;
+  @IsArray()
+  @IsUUID('all', { each: true })
+  categoryIds?: string[];
 }
