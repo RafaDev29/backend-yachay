@@ -1,4 +1,3 @@
-// src/upload/upload.service.ts
 import { Injectable } from '@nestjs/common';
 import { s3Client } from 'src/config/s3.config';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
@@ -22,7 +21,8 @@ export class UploadService {
 
     await s3Client.send(command);
 
-    const endpoint = process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT;
-    return `${endpoint}/${bucket}/${fileName}`;
+    const publicUrl = process.env.S3_PUBLIC_URL;
+    return `${publicUrl}/${bucket}/${fileName}`;
   }
 }
+
