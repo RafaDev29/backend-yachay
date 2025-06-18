@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AcademicService } from './academic.service';
 import { CreateAcademicDto } from './dto/create-academic.dto';
-import { UpdateAcademicDto } from './dto/update-academic.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('academic')
 export class AcademicController {
-  constructor(private readonly academicService: AcademicService) {}
+  constructor(private readonly academicService: AcademicService) { }
 
   @Post('add')
   create(@Body() createAcademicDto: CreateAcademicDto) {

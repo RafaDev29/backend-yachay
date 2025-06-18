@@ -7,7 +7,7 @@ import { ProfileSettingsDto } from './dto/profile-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
 
-
+@UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
@@ -18,19 +18,16 @@ export class UserController {
     return this.userService.register(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put('profile-settings')
   async updateProfileSettings(@Request() req, @Body() dto: ProfileSettingsDto) {
     return this.userService.updateProfileSettings(req.user.userId, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile-settings')
   async findProfileSettings(@Request() req) {
     return this.userService.findProfileSettings(req.user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put('avatar')
   @UseInterceptors(FileInterceptor('image', {
     storage: multer.memoryStorage(),
@@ -42,9 +39,9 @@ export class UserController {
     return this.userService.uploadAvatar(req.user.userId, file);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('general-information')
+  findGeneralInformation(@Request() req) {
+    return this.userService.findGeneralInformation(req.user.userId);
   }
 
   @Get(':id')

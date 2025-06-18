@@ -81,6 +81,17 @@ export class UserService {
     return userProfile;
   }
 
+  async findGeneralInformation(userId: string) {
+    let [userProfile, userAvatar] = await Promise.all([this.profileRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['preferences']
+    }),
+    this.avatarRepo.findOne({
+      where: { user: { id: userId } }
+    })]);
+    return { userProfile, userAvatar };
+  }
+
   async updateProfileSettings(userId: string, dto: ProfileSettingsDto) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
