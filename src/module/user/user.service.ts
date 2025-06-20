@@ -170,10 +170,8 @@ export class UserService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
-
+    
     if (avatar) {
-      const previousKey = this.extractFileName(avatar.imageUrl);
-      await s3Client.send(new DeleteObjectCommand({ Bucket: 'avatar', Key: previousKey }));
       avatar.imageUrl = imageUrl;
     } else {
       avatar = this.avatarRepo.create({ user, imageUrl });
