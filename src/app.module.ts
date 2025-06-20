@@ -10,6 +10,7 @@ import { UploadModule } from './module/upload/upload.module';
 import { PreferencesModule } from './module/preferences/preferences.module';
 import { CategoryModule } from './module/category/category.module';
 import { CharactersModule } from './module/characters/characters.module';
+import { GeminiModule } from './module/gemini/gemini.module';
 
 
 @Module({
@@ -23,7 +24,8 @@ import { CharactersModule } from './module/characters/characters.module';
     CharactersModule,
     UploadModule,
     PreferencesModule,
-    CategoryModule
+    CategoryModule,
+    GeminiModule
   ],
   controllers: [],
   providers: [],

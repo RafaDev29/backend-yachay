@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,8 +10,6 @@ import { ProfileSettingsDto } from './dto/profile-settings.dto';
 import { Academic } from '../academic/entities/academic.entity';
 import { Career } from '../careers/entities/career.entity';
 import { UserAvatar } from './entities/user-avatar.entity';
-import { DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client } from 'src/config/s3.config';
 import { UploadService } from '../upload/upload.service';
 import { Preference } from '../preferences/entities/preference.entity';
 
@@ -170,7 +168,7 @@ export class UserService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
-    
+
     if (avatar) {
       avatar.imageUrl = imageUrl;
     } else {
