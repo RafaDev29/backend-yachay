@@ -31,13 +31,18 @@ export class UserController {
   @Put('avatar')
   @UseInterceptors(FileInterceptor('image', {
     storage: multer.memoryStorage(),
+    fileFilter: (req, file, callback) => {
+      callback(null, true);
+    }
   }))
   uploadAvatar(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Body('avatarUrl') avatarUrl: string,
     @Req() req: any,
   ) {
-    return this.userService.uploadAvatar(req.user.userId, file);
+    return this.userService.uploadAvatar(req.user.userId, file, avatarUrl);
   }
+
 
   @Get('general-information')
   findGeneralInformation(@Request() req) {

@@ -157,11 +157,14 @@ export class UserService {
     };
   }
 
-  async uploadAvatar(userId: string, file: Express.Multer.File) {
+  async uploadAvatar(userId: string, file: Express.Multer.File | undefined, avatarUrl?: string) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Usuario no encontrado');
 
-    const imageUrl = await this.uploadService.uploadFile(file, 'avatar', userId);
+    let imageUrl: string = avatarUrl ? avatarUrl : "";
+    if (file != null) {
+      imageUrl = await this.uploadService.uploadFile(file, 'avatar', userId);
+    }
 
     let avatar = await this.avatarRepo.findOne({
       where: { user: { id: userId } },
