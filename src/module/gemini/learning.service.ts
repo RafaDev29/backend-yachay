@@ -80,8 +80,10 @@ export class LearningService {
 ${request.description}${focusAreasContext}
 Difficulty: ${request.difficulty} | Language: ${request.language}
 
-Return only a JSON array of ${request.questionCount} unique, specific subtopics:
-["subtopic1", "subtopic2", "subtopic3"]`;
+IMPORTANT: Return ONLY a JSON array of strings (not an object). Example format:
+["Subtopic 1", "Subtopic 2", "Subtopic 3"]
+
+Generate exactly ${request.questionCount} subtopics as a JSON array:`;
 
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -92,20 +94,20 @@ Return only a JSON array of ${request.questionCount} unique, specific subtopics:
           'X-Title': 'Quiz Generator'
         },
         body: JSON.stringify({
-          model: 'qwen/qwen2.5-7b-instruct:free',
+          model: 'mistralai/mistral-7b-instruct:free',
           messages: [
             {
               role: 'system',
-              content: 'You are a quiz topic generator. Always respond with valid JSON arrays only.'
+              content: 'You are a quiz topic generator. Always respond with a JSON array of strings only, never an object. Format: ["topic1", "topic2", "topic3"]'
             },
             {
               role: 'user',
               content: topicPrompt
             }
           ],
-          temperature: 0.2, // Más bajo para mayor consistencia
-          max_tokens: 400,   // Reducido para respuestas más concisas
-          top_p: 0.9        // Añadido para mejor control
+          temperature: 0.2,
+          max_tokens: 400,
+          top_p: 0.9
         })
       });
 
@@ -116,28 +118,43 @@ Return only a JSON array of ${request.questionCount} unique, specific subtopics:
       const data = await response.json();
       const content = data.choices[0]?.message?.content?.trim();
 
-      // Parsing mejorado con múltiples estrategias
       let topics: string[];
+
       try {
-        // Intentar parsing directo
-        topics = JSON.parse(content);
+        const parsed = JSON.parse(content);
+
+        if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+          topics = Object.values(parsed).map(value => String(value));
+        }
+        else if (Array.isArray(parsed)) {
+          topics = parsed.map(item => String(item));
+        }
+        else {
+          throw new Error('Unexpected JSON format');
+        }
+
       } catch (parseError) {
         try {
-          // Buscar array JSON en el contenido
           const jsonMatch = content.match(/\[[\s\S]*?\]/);
           if (jsonMatch) {
             topics = JSON.parse(jsonMatch[0]);
           } else {
-            const lines = content.split('\n')
-              .map(line => line.trim())
-              .filter(line => line && !line.startsWith('-') && !line.startsWith('*'))
-              .map(line => line.replace(/^[\d\.\-\*\s]+/, '').replace(/['"]/g, ''))
-              .slice(0, request.questionCount);
-
-            if (lines.length > 0) {
-              topics = lines;
+            const objectMatch = content.match(/\{[\s\S]*?\}/);
+            if (objectMatch) {
+              const obj = JSON.parse(objectMatch[0]);
+              topics = Object.values(obj).map(value => String(value));
             } else {
-              throw new Error('Could not extract topics from response');
+              const lines = content.split('\n')
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('-') && !line.startsWith('*'))
+                .map(line => line.replace(/^[\d\.\-\*\s]+/, '').replace(/['"]/g, ''))
+                .slice(0, request.questionCount);
+
+              if (lines.length > 0) {
+                topics = lines;
+              } else {
+                throw new Error('Could not extract topics from response');
+              }
             }
           }
         } catch (secondParseError) {
@@ -165,7 +182,6 @@ Return only a JSON array of ${request.questionCount} unique, specific subtopics:
   }
 
   private generateFallbackTopics(request: QuestionGenerationRequest): string[] {
-    // Si hay focusAreas, crear temas basados en ellas
     if (request.focusAreas?.length) {
       const expandedTopics: string[] = [];
 
@@ -220,7 +236,6 @@ Return only a JSON array of ${request.questionCount} unique, specific subtopics:
     }
   }
 
-  // PROMPT ULTRA-COMPACTO con doble enfoque
   private buildCompactPrompt(request: QuestionGenerationRequest, questionNumber: number): string {
     const questionTypesText = this.formatQuestionTypes(request.questionTypes);
     const focusSection = this.buildDualFocusSection(request);
@@ -264,22 +279,18 @@ multiple_choice(4 opts,1 correcta)|multiple_select(4-6 opts,2-3 correctas)|true_
   private buildDualFocusSection(request: QuestionGenerationRequest): string {
     let section = '📍 ENFOQUE ESPECÍFICO:\n';
 
-    // Descripción general si existe
     if (request.description) {
       section += `Descripción: "${request.description}"\n`;
     }
 
-    // Áreas de enfoque de la consulta inicial
     if (request.focusAreas?.length) {
       section += `🎯 Áreas prioritarias: ${request.focusAreas.join(', ')}\n`;
     }
 
-    // Tema específico generado por IA
     if (request.specificTopic) {
       section += `🤖 Enfoque específico: "${request.specificTopic}"\n`;
     }
 
-    // Instrucciones de priorización
     if (request.focusAreas?.length && request.specificTopic) {
       section += '⚠️ PRIORIDAD: Crear pregunta sobre el enfoque específico dentro del contexto de las áreas prioritarias\n';
     } else if (request.focusAreas?.length) {
