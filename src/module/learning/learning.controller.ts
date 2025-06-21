@@ -147,14 +147,7 @@ export class LearningController {
       recommended: this.isRecommendedQuestionType(type)
     }));
 
-    return {
-      success: true,
-      data: {
-        questionTypes,
-        total: questionTypes.length
-      },
-      message: 'Tipos de pregunta obtenidos exitosamente'
-    };
+    return questionTypes;
   }
 
   private generateQuizId(): string {
