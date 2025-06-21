@@ -54,21 +54,16 @@ export class LearningController {
       const questions = await this.geminiService.generateQuestions(enhancedRequest);
 
       return {
-        success: true,
-        data: {
-          quiz: {
-            id: this.generateQuizId(),
-            topic: createQuizDto.topic,
-            difficulty: createQuizDto.difficulty,
-            totalQuestions: questions.length,
-            questions: questions,
-            metadata: {
-              createdAt: new Date().toISOString(),
-              language: enhancedRequest.language,
-            }
-          }
-        },
-        message: `🎯 Quiz "${createQuizDto.topic}" generado exitosamente con ${questions.length} preguntas`
+        id: this.generateQuizId(),
+        topic: createQuizDto.topic,
+        difficulty: createQuizDto.difficulty,
+        totalQuestions: questions.length,
+        questions: questions,
+        timeLimit: questions.length * 45,
+        metadata: {
+          createdAt: new Date().toISOString(),
+          language: enhancedRequest.language,
+        }
       };
 
     } catch (error) {
@@ -112,22 +107,16 @@ export class LearningController {
       const questions = await this.geminiService.generateQuestions(quickRequest);
 
       return {
-        success: true,
-        data: {
-          quickExam: {
-            id: this.generateQuizId(),
-            topic: quickExamDto.topic,
-            questions: questions,
-            timeLimit: questions.length * 45,
-            difficulty: quickRequest.difficulty,
-            isQuickExam: true,
-            metadata: {
-              createdAt: new Date().toISOString(),
-              type: 'quick_exam'
-            }
-          }
-        },
-        message: `⚡ Examen rápido sobre "${quickExamDto.topic}" listo para comenzar! 🚀`
+        id: this.generateQuizId(),
+        topic: quickRequest.topic,
+        difficulty: quickRequest.difficulty,
+        totalQuestions: questions.length,
+        questions: questions,
+        timeLimit: questions.length * 45,
+        metadata: {
+          createdAt: new Date().toISOString(),
+          language: quickRequest.language,
+        }
       };
 
     } catch (error) {
@@ -180,10 +169,10 @@ export class LearningController {
       [QuestionType.FILL_BLANK]: 'Completar Espacios',
       [QuestionType.DRAG_DROP]: 'Arrastrar y Soltar',
       [QuestionType.SEQUENCE_ORDER]: 'Ordenar Secuencia',
-      [QuestionType.MATCH_PAIRS]: 'Emparejar Conceptos',
+      // [QuestionType.MATCH_PAIRS]: 'Emparejar Conceptos',
       [QuestionType.SELECT_TEXT]: 'Seleccionar Texto',
-      [QuestionType.CATEGORIZE]: 'Categorizar',
-      [QuestionType.SHORT_ANSWER]: 'Respuesta Corta'
+      // [QuestionType.CATEGORIZE]: 'Categorizar',
+      // [QuestionType.SHORT_ANSWER]: 'Respuesta Corta'
     };
     return names[type] || type;
   }
@@ -196,10 +185,10 @@ export class LearningController {
       [QuestionType.FILL_BLANK]: 'Completar espacios en blanco en el texto',
       [QuestionType.DRAG_DROP]: 'Arrastrar opciones a los espacios correctos',
       [QuestionType.SEQUENCE_ORDER]: 'Ordenar elementos en secuencia lógica',
-      [QuestionType.MATCH_PAIRS]: 'Conectar conceptos relacionados',
+      // [QuestionType.MATCH_PAIRS]: 'Conectar conceptos relacionados',
       [QuestionType.SELECT_TEXT]: 'Seleccionar parte correcta de un texto',
-      [QuestionType.CATEGORIZE]: 'Clasificar elementos en categorías',
-      [QuestionType.SHORT_ANSWER]: 'Respuesta breve de 1-3 palabras'
+      //[QuestionType.CATEGORIZE]: 'Clasificar elementos en categorías',
+      //[QuestionType.SHORT_ANSWER]: 'Respuesta breve de 1-3 palabras'
     };
     return descriptions[type] || 'Tipo de pregunta personalizado';
   }
@@ -212,10 +201,10 @@ export class LearningController {
       [QuestionType.MULTIPLE_SELECT]: 'Medio-Alto',
       [QuestionType.DRAG_DROP]: 'Medio-Alto',
       [QuestionType.SEQUENCE_ORDER]: 'Alto',
-      [QuestionType.MATCH_PAIRS]: 'Alto',
-      [QuestionType.CATEGORIZE]: 'Alto',
+      // [QuestionType.MATCH_PAIRS]: 'Alto',
+      // [QuestionType.CATEGORIZE]: 'Alto',
       [QuestionType.SELECT_TEXT]: 'Medio',
-      [QuestionType.SHORT_ANSWER]: 'Alto'
+      // [QuestionType.SHORT_ANSWER]: 'Alto'
     };
     return difficulties[type] || 'Variable';
   }

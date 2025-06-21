@@ -10,7 +10,7 @@ import { UploadModule } from './module/upload/upload.module';
 import { PreferencesModule } from './module/preferences/preferences.module';
 import { CategoryModule } from './module/category/category.module';
 import { CharactersModule } from './module/characters/characters.module';
-import { LearningModule } from './module/gemini/learning.module';
+import { LearningModule } from './module/learning/learning.module';
 
 @Module({
   imports: [
