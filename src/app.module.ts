@@ -10,8 +10,7 @@ import { UploadModule } from './module/upload/upload.module';
 import { PreferencesModule } from './module/preferences/preferences.module';
 import { CategoryModule } from './module/category/category.module';
 import { CharactersModule } from './module/characters/characters.module';
-import { GeminiModule } from './module/gemini/gemini.module';
-
+import { LearningModule } from './module/gemini/learning.module';
 
 @Module({
   imports: [
@@ -25,7 +24,7 @@ import { GeminiModule } from './module/gemini/gemini.module';
     UploadModule,
     PreferencesModule,
     CategoryModule,
-    GeminiModule
+    LearningModule
   ],
   controllers: [],
   providers: [],
