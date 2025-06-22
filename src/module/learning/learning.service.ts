@@ -17,6 +17,7 @@ export class LearningService {
       process.env.GEMINI_API_KEY_2,
       process.env.GEMINI_API_KEY_3,
       process.env.GEMINI_API_KEY_4,
+      process.env.GEMINI_API_KEY_5,
     ].filter(key => key);
 
     this.geminiInstances = apiKeys.map(apiKey => new GoogleGenerativeAI(apiKey ? apiKey : ""));
@@ -258,15 +259,12 @@ multiple_choice(4 opts,1 correcta)|multiple_select(4-6 opts,2-3 correctas)|true_
     "id": "${questionNumber}_${Date.now()}",
     "question": "Texto pregunta",
     "type": "tipo_pregunta",
-    "difficulty": "${request.difficulty}",
-    "topic": "${request.topic}",
-    "language": "${request.language}",
     "options": [{"id":"opt_1","text":"Texto","isCorrect":boolean,"order":1,"explanation":"Por qué"}],
     "correctAnswers": ["opt_1"],
     "hints": [
-      {"level":"subtle","text":"Pista sutil","pointsDeduction":5},
-      {"level":"moderate","text":"Pista moderada","pointsDeduction":15},
-      {"level":"obvious","text":"Pista obvia","pointsDeduction":25}
+      {"level":"subtle","text":"Pista sutil"},
+      {"level":"moderate","text":"Pista moderada"},
+      {"level":"obvious","text":"Pista obvia"}
     ],
     "explanation": {"brief":"Breve","detailed":"Detallada","relatedConcepts":["concepto1"]},
     "tags": ["tag1","tag2"]

@@ -59,7 +59,6 @@ export class LearningController {
         difficulty: createQuizDto.difficulty,
         totalQuestions: questions.length,
         questions: questions,
-        timeLimit: questions.length * 45,
         metadata: {
           createdAt: new Date().toISOString(),
           language: enhancedRequest.language,
@@ -112,7 +111,6 @@ export class LearningController {
         difficulty: quickRequest.difficulty,
         totalQuestions: questions.length,
         questions: questions,
-        timeLimit: questions.length * 45,
         metadata: {
           createdAt: new Date().toISOString(),
           language: quickRequest.language,
