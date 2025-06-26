@@ -1,5 +1,5 @@
-import { Category } from 'src/module/category/entities/category.entity';
-import { UserProfile } from 'src/module/user/entities/user-profile';
+import { Category } from 'src/modules/category/entities/category.entity';
+import { UserProfile } from 'src/modules/user/entities/user-profile';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Index } from 'typeorm';
 
 @Entity()

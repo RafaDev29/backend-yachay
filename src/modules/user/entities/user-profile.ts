@@ -8,7 +8,7 @@ import {
     JoinTable,
 } from 'typeorm';
 import { User } from './user.entity';
-import { Preference } from 'src/module/preferences/entities/preference.entity';
+import { Preference } from 'src/modules/preferences/entities/preference.entity';
 
 @Entity('user_profiles')
 export class UserProfile {

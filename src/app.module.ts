@@ -2,15 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
-import { AuthModule } from './module/auth/auth.module';
-import { UserModule } from './module/user/user.module';
-import { AcademicModule } from './module/academic/academic.module';
-import { CareersModule } from './module/careers/careers.module';
-import { UploadModule } from './module/upload/upload.module';
-import { PreferencesModule } from './module/preferences/preferences.module';
-import { CategoryModule } from './module/category/category.module';
-import { CharactersModule } from './module/characters/characters.module';
-import { LearningModule } from './module/learning/learning.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { AcademicModule } from './modules/academic/academic.module';
+import { CareersModule } from './modules/careers/careers.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { PreferencesModule } from './modules/preferences/preferences.module';
+import { CategoryModule } from './modules/category/category.module';
+import { CharactersModule } from './modules/characters/characters.module';
+import { LearningModule } from './modules/learning/learning.module';
+import { QuizModule } from './modules/quiz/quiz.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { LearningModule } from './module/learning/learning.module';
     UploadModule,
     PreferencesModule,
     CategoryModule,
-    LearningModule
+    LearningModule,
+    QuizModule
   ],
   controllers: [],
   providers: [],

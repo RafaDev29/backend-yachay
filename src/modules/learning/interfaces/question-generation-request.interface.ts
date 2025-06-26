@@ -18,5 +18,5 @@ export interface QuestionGenerationRequest {
     // Personalización avanzada
     focusAreas?: string[];        // Áreas específicas a enfatizar
 
-     specificTopic?: string; // Esto lo generara la IA
+    specificTopic?: string; // Esto lo generara la IA
 }
