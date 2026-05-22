@@ -3,6 +3,7 @@ import { QuestionGenerationRequest } from './interfaces/question-generation-requ
 import { GeneratedQuestion, QuestionType } from './interfaces/generated-question.interface';
 import { QuestionHint } from './interfaces/question-hint.interface';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class LearningService {
@@ -10,6 +11,7 @@ export class LearningService {
   private readonly openRouterApiKey = process.env.OPENROUTER_API_KEY;
   private readonly geminiInstances: GoogleGenerativeAI[];
   private readonly models: any[];
+  private cache = new Map<string, GeneratedQuestion[]>();
 
   constructor() {
     const apiKeys = [
@@ -33,8 +35,12 @@ export class LearningService {
   }
 
   async generateQuestions(request: QuestionGenerationRequest): Promise<GeneratedQuestion[]> {
-    const startTime = Date.now();
+    const cacheKey = this.generateCacheKey(request);
 
+    if (this.cache.has(cacheKey)) {
+      this.logger.log(`Cache hit for key: ${cacheKey}`);
+      return this.cache.get(cacheKey) ?? [];
+    }
     const specificTopics = await this.generateDiverseTopics(request);
     this.logger.log(`Generated ${specificTopics.length} diverse topics`);
 
@@ -65,10 +71,19 @@ export class LearningService {
       .map(result => result.status === 'fulfilled' ? result.value : null)
       .filter((q): q is GeneratedQuestion => q !== null);
 
-    const duration = Date.now() - startTime;
-    this.logger.log(`Generated ${questions.length}/${request.questionCount} questions in ${duration}ms`);
-
+    this.cache.set(cacheKey, questions);
     return questions;
+  }
+  
+  private generateCacheKey(request: QuestionGenerationRequest): string {
+    const keyObject = {
+      topic: request.topic,
+      description: request.description ?? '',
+      focusAreas: request.focusAreas?.sort() ?? [], // ordenarlas para evitar duplicados con distinto orden
+    };
+
+    const keyString = JSON.stringify(keyObject);
+    return crypto.createHash('sha256').update(keyString).digest('hex');
   }
 
   private async generateDiverseTopics(request: QuestionGenerationRequest): Promise<string[]> {

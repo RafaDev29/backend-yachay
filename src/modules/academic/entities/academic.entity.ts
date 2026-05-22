@@ -1,4 +1,4 @@
-import { Career } from 'src/module/careers/entities/career.entity';
+import { Career } from 'src/modules/careers/entities/career.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('academic')

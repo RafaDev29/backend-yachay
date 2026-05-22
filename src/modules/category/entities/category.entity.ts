@@ -1,4 +1,4 @@
-import { Preference } from 'src/module/preferences/entities/preference.entity';
+import { Preference } from 'src/modules/preferences/entities/preference.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, Index } from 'typeorm';
 
 @Entity()

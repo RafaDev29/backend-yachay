@@ -4,7 +4,7 @@ import { UpdateCareerDto } from './dto/update-career.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Career } from './entities/career.entity';
 import { Repository } from 'typeorm';
-import { Academic } from 'src/module/academic/entities/academic.entity';
+import { Academic } from 'src/modules/academic/entities/academic.entity';
 import { CreateManyCareersDto } from './dto/create-many-careers.dto';
 
 @Injectable()
